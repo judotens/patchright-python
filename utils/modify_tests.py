@@ -7,7 +7,7 @@ files_to_skip = [
     'test_console.py',
 
     # query_selector is deprecated
-    'test_query_selector.py',
+    'test_queryselector.py',
     'test_element_handle.py',
     'test_element_handle_wait_for_element_state.py',
 
@@ -80,10 +80,6 @@ dont_isolate_evaluation_tests = [
     "test_expose_function_should_work_on_frames_before_navigation",
 ]
 
-# Directory containing the test files
-async_test_dir = 'tests/async'
-sync_test_dir = 'tests/sync'
-
 # Reason for skipping tests_backup
 skip_reason = "Skipped as per documentation (https://github.com/Kaliiiiiiiiii-Vinyzu/patchright/issues/31)"
 
@@ -150,7 +146,7 @@ def main():
     with open("./tests/assets/inject.html", "w") as f:
         f.write("<script>window.result = window.injected;</script>")
 
-    for root, _, files in itertools.chain(os.walk(sync_test_dir), os.walk(async_test_dir)):
+    for root, _, files in os.walk("tests"):
         for file in files:
             file_path = os.path.join(root, file)
 
