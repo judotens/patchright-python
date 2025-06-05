@@ -149,9 +149,10 @@ def main():
     with open("./tests/conftest.py", "r") as read_f:
         conftest_content = read_f.read()
         updated_conftest_content = conftest_content.replace(
-            "Path(inspect.getfile(playwright)).parent / 'driver'",
-            "Path(inspect.getfile(patchright)).parent / 'driver'"
+            "Path(inspect.getfile(playwright)).parent",
+            "Path(inspect.getfile(patchright)).parent"
         )
+
         with open("./tests/conftest.py", "w") as write_f:
             write_f.write(updated_conftest_content)
 
