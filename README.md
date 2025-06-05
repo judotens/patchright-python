@@ -174,6 +174,17 @@ object.evaluate_handle(
 )
 ```
 
+#### **`evaluate_all`** Method <sub>([`Frame.evaluate_all`](https://playwright.dev/python/docs/next/api/class-locator#locator-evaluate-all))</sub>
+- Added `isolated_context`  to choose Execution Context (Main/Isolated). `Bool` (*optional*, Defaults to `True`)
+```diff
+Frame.evaluate_all(
+    expression: str,
+    arg: typing.Optional[typing.Any] = None,
+    ...,
++   isolated_context: typing.Optional[bool] = True
+)
+```
+
 
 ---
 

@@ -1,0 +1,43 @@
+name: Patchright Chromium Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  run-playwright-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pytest patchright
+
+      - name: Install Playwright Browsers
+        run: |
+          python -m patchright install --with-deps chromium
+
+      - name: Clone Playwright-Python Tests
+        run: |
+          git clone --depth 1 https://github.com/microsoft/playwright-python.git
+          cp -r playwright-python/tests ./tests
+
+      - name: Modify Tests
+        run: |
+          python utils/modify_tests.py
+
+      - name: Run Chromium Tests
+        run: |
+          pytest --browser=chromium --disable-warnings --timeout 90 tests/sync/
+          pytest --browser=chromium --disable-warnings --timeout 90 tests/async/

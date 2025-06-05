@@ -5,7 +5,7 @@ import os
 import toml
 
 patchright_version = os.environ.get('playwright_version')
-# patchright_version = "1.52.4"
+patchright_version = "1.52.5"
 
 def patch_file(file_path: str, patched_tree: ast.AST) -> None:
     with open(file_path, "w") as f:
@@ -194,7 +194,7 @@ with open("playwright-python/playwright/_impl/_frame.py") as f:
     frame_tree = ast.parse(frame_source)
 
     for node in ast.walk(frame_tree):
-        if isinstance(node, ast.AsyncFunctionDef) and node.name in ["evaluate", "evaluate_handle"]:
+        if isinstance(node, ast.AsyncFunctionDef) and node.name in ["evaluate", "evaluate_handle", "eval_on_selector_all"]:
             node.args.kwonlyargs.append(ast.arg(
                 arg="isolatedContext",
                 annotation=ast.Subscript(
@@ -225,7 +225,7 @@ with open("playwright-python/playwright/_impl/_locator.py") as f:
     frame_tree = ast.parse(frame_source)
 
     for node in ast.walk(frame_tree):
-        if isinstance(node, ast.AsyncFunctionDef) and node.name in ["evaluate", "evaluate_handle"]:
+        if isinstance(node, ast.AsyncFunctionDef) and node.name in ["evaluate", "evaluate_handle", "evaluate_all"]:
             node.args.kwonlyargs.append(ast.arg(
                 arg="isolatedContext",
                 annotation=ast.Subscript(
@@ -250,6 +250,12 @@ with open("playwright-python/playwright/_impl/_locator.py") as f:
                                                 arg="isolatedContext",
                                                 value=ast.Name(id="isolatedContext", ctx=ast.Load())
                                             ))
+                            elif call_expr.func.attr == "eval_on_selector_all":
+                                call_expr.keywords.append(ast.keyword(
+                                    arg="isolatedContext",
+                                    value=ast.Name(id="isolatedContext", ctx=ast.Load())
+                                ))
+
 
     patch_file("playwright-python/playwright/_impl/_locator.py", frame_tree)
 
@@ -414,7 +420,7 @@ with open("playwright-python/playwright/async_api/_generated.py") as f:
     for class_node in ast.walk(async_generated_tree):
         if isinstance(class_node, ast.ClassDef) and class_node.name in ["Page", "Frame", "Worker", "Locator"]:
             for node in class_node.body:
-                if isinstance(node, ast.AsyncFunctionDef) and node.name in ["evaluate", "evaluate_handle"]:  # , "evaluate_all"
+                if isinstance(node, ast.AsyncFunctionDef) and (node.name in ["evaluate", "evaluate_handle"] or (class_node.name == "Locator" and node.name == "evaluate_all")):  # , "evaluate_all"
                     new_arg = ast.arg(arg="isolated_context", annotation=ast.Subscript(
                         value=ast.Name(id="typing.Optional", ctx=ast.Load()),
                         slice=ast.Name(id="bool", ctx=ast.Load()),
@@ -444,7 +450,7 @@ with open("playwright-python/playwright/sync_api/_generated.py") as f:
     for class_node in ast.walk(async_generated_tree):
         if isinstance(class_node, ast.ClassDef) and class_node.name in ["Page", "Frame", "Worker", "Locator"]:
             for node in class_node.body:
-                if isinstance(node, ast.FunctionDef) and node.name in ["evaluate", "evaluate_handle"]: # , "evaluate_all"
+                if isinstance(node, ast.FunctionDef) and (node.name in ["evaluate", "evaluate_handle"] or (class_node.name == "Locator" and node.name == "evaluate_all")): # , "evaluate_all"
                     new_arg = ast.arg(arg="isolated_context", annotation=ast.Subscript(
                         value=ast.Name(id="typing.Optional", ctx=ast.Load()),
                         slice=ast.Name(id="bool", ctx=ast.Load()),
