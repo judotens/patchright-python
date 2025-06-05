@@ -7,6 +7,7 @@ files_to_skip = [
     'test_console.py',
 
     # query_selector is deprecated
+    'test_query_selector.py',
     'test_element_handle.py',
     'test_element_handle_wait_for_element_state.py',
 

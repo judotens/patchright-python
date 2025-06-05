@@ -22,7 +22,35 @@ jobs:
       - name: Install Dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install pytest patchright
+          pip install pytest
+
+      - name: Install Playwright-Python Package
+        run: |
+          git clone https://github.com/microsoft/playwright-python --branch ${{ env.playwright_version }}
+          cd playwright-python
+          python -m pip install --upgrade pip
+          pip install -r local-requirements.txt
+          pip install -e .
+          pip install black toml
+
+      - name: Patch Playwright-Python Package
+        run: |
+          python patch_python_package.py
+          python -m black playwright-python
+
+      - name: Build Patchright-Python Package
+        run: |
+          cd playwright-python
+          pip install -e .
+          for wheel in $(python setup.py --list-wheels); do
+            PLAYWRIGHT_TARGET_WHEEL=$wheel python -m build --wheel
+          done
+
+      - name: Install Local Patchright Package
+        run: |
+          cd playwright-python
+          pip install dist/patchright-*-manylinux1_x86_64.whl
+          # dist/patchright-1.52.5-py3-none-manylinux1_x86_64.whl
 
       - name: Install Playwright Browsers
         run: |
@@ -30,7 +58,6 @@ jobs:
 
       - name: Clone Playwright-Python Tests
         run: |
-          git clone --depth 1 https://github.com/microsoft/playwright-python.git
           cp -r playwright-python/tests ./tests
 
       - name: Modify Tests
