@@ -65,5 +65,5 @@ jobs:
 
       - name: Run Chromium Tests
         run: |
-          pytest --browser=chromium --disable-warnings --timeout 90 tests/sync/
-          pytest --browser=chromium --disable-warnings --timeout 90 tests/async/
+          xvfb-run pytest --browser=chromium --disable-warnings --timeout 90 tests/sync/
+          xvfb-run pytest --browser=chromium --disable-warnings --timeout 90 tests/async/
