@@ -26,7 +26,7 @@ jobs:
 
       - name: Install Playwright-Python Package
         run: |
-          git clone https://github.com/microsoft/playwright-python --branch ${{ env.playwright_version }}
+          git clone https://github.com/microsoft/playwright-python --branch $(curl --silent "https://api.github.com/repos/Kaliiiiiiiiii-Vinyzu/patchright/releases/latest" | grep '"tag_name"' | sed -E 's/.*"([^"]+)".*/\1/')
           cd playwright-python
           python -m pip install --upgrade pip
           pip install -r local-requirements.txt
@@ -50,7 +50,6 @@ jobs:
         run: |
           cd playwright-python
           pip install dist/patchright-*-manylinux1_x86_64.whl
-          # dist/patchright-1.52.5-py3-none-manylinux1_x86_64.whl
 
       - name: Install Playwright Browsers
         run: |
