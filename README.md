@@ -13,14 +13,18 @@
     <a>
         <img src="https://img.shields.io/badge/Driver-Patched-blue">
     </a>
+    <a href="https://github.com/Kaliiiiiiiiii-Vinyzu/patchright-python/actions/workflows/patchright_tests.yml">
+        <img src="https://github.com/Kaliiiiiiiiii-Vinyzu/patchright-python/actions/workflows/patchright_tests.yml/badge.svg">
+    </a>
+    <br/>
     <a href="https://github.com/Kaliiiiiiiiii-Vinyzu/patchright-python/releases/latest">
         <img alt="Patchright Version" src="https://img.shields.io/github/v/release/microsoft/playwright-python?display_name=release&label=Version">
     </a>
-    <a href="https://github.com/Kaliiiiiiiiii-Vinyzu/patchright-python/releases">
-        <img alt="GitHub Downloads (all assets, all releases)" src="https://img.shields.io/pepy/dt/patchright?color=red">
-    </a>
     <a href="https://github.com/Kaliiiiiiiiii-Vinyzu/patchright-python">
         <img src="https://img.shields.io/badge/Package-Python-seagreen">
+    </a>
+    <a href="https://github.com/Kaliiiiiiiiii-Vinyzu/patchright-python/releases">
+        <img alt="GitHub Downloads (all assets, all releases)" src="https://img.shields.io/pepy/dt/patchright?color=red">
     </a>
 </p>
 
@@ -174,10 +178,10 @@ object.evaluate_handle(
 )
 ```
 
-#### **`evaluate_all`** Method <sub>([`Frame.evaluate_all`](https://playwright.dev/python/docs/next/api/class-locator#locator-evaluate-all))</sub>
+#### **`evaluate_all`** Method <sub>([`Locator.evaluate_all`](https://playwright.dev/python/docs/next/api/class-locator#locator-evaluate-all))</sub>
 - Added `isolated_context`  to choose Execution Context (Main/Isolated). `Bool` (*optional*, Defaults to `True`)
 ```diff
-Frame.evaluate_all(
+Locator.evaluate_all(
     expression: str,
     arg: typing.Optional[typing.Any] = None,
     ...,
