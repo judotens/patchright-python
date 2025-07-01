@@ -12,12 +12,13 @@ def patch_file(file_path: str, patched_tree: ast.AST) -> None:
         f.write(ast.unparse(ast.fix_missing_locations(patched_tree)))
 
 # Adding _repo_version.py (Might not be intended but fixes the build)
-with open("playwright/_repo_version.py", "w") as f:
+with open("/usr/local/lib/python3.10/site-packages/playwright-python/_repo_version.py", "w") as f:
     f.write(f"version = '{patchright_version}'")
 
 # Patching pyproject.toml
-with open("playwright/pyproject.toml", "r") as f:
+with open("/usr/local/lib/python3.10/site-packages/playwright-python/pyproject.toml", "r") as f:
     pyproject_source = toml.load(f)
+    #print(pyproject_source['project'])
 
     pyproject_source["project"]["name"] = "patchright"
     pyproject_source["project"]["description"] = "Undetected Python version of the Playwright testing and automation library."
@@ -28,18 +29,20 @@ with open("playwright/pyproject.toml", "r") as f:
     pyproject_source["project"]["urls"]["Bug Reports"] = "https://github.com/Kaliiiiiiiiii-Vinyzu/patchright-python/issues"
     pyproject_source["project"]["urls"]["homeSource Codepage"] = "https://github.com/Kaliiiiiiiiii-Vinyzu/patchright-python"
 
-    del pyproject_source["project"]["scripts"]["playwright"]
+    try: del pyproject_source["project"]["scripts"]["playwright"]
+    except: pass
+
     pyproject_source["project"]["scripts"]["patchright"] = "patchright.__main__:main"
     pyproject_source["project"]["entry-points"]["pyinstaller40"]["hook-dirs"] = "patchright._impl.__pyinstaller:get_hook_dirs"
 
     pyproject_source["tool"]["setuptools"]["packages"] = ['patchright', 'patchright.async_api', 'patchright.sync_api', 'patchright._impl', 'patchright._impl.__pyinstaller']
     pyproject_source["tool"]["setuptools_scm"] = {'version_file': 'patchright/_repo_version.py'}
 
-    with open("playwright/pyproject.toml", "w") as f:
+    with open("/usr/local/lib/python3.10/site-packages/playwright-python/pyproject.toml", "w") as f:
         toml.dump(pyproject_source, f)
 
 # Patching setup.py
-with open("playwright/setup.py") as f:
+with open("/usr/local/lib/python3.10/site-packages/playwright-python/setup.py") as f:
     setup_source = f.read()
     setup_tree = ast.parse(setup_source)
 
@@ -72,22 +75,22 @@ with open("playwright/setup.py") as f:
 
         # Modify Os Makedirs Call
         if isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute) and isinstance(node.func.value, ast.Name) and len(node.args) >= 1 and isinstance(node.args[0], ast.Constant):
-            if node.func.value.id == "os" and node.func.attr == "makedirs" and node.args[0].value == "playwright/driver":
+            if node.func.value.id == "os" and node.func.attr == "makedirs" and node.args[0].value == "/usr/local/lib/python3.10/site-packages/playwright-python/driver":
                 node.args[0].value = "patchright/driver"
 
         # Modify Zip Write Call
         if isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute) and isinstance(node.func.value, ast.Name) and len(node.args) >= 2 and isinstance(node.args[1], ast.JoinedStr):
-            if node.func.value.id == "zip" and node.func.attr == "write" and node.args[1].values[0].value == "playwright/driver/":
+            if node.func.value.id == "zip" and node.func.attr == "write" and node.args[1].values[0].value == "/usr/local/lib/python3.10/site-packages/playwright-python/driver/":
                 node.args[1].values[0].value = "patchright/driver/"
 
         # Modify Zip Writestr Call
         if isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute) and isinstance(node.func.value, ast.Name) and len(node.args) >= 1 and isinstance(node.args[0], ast.Constant):
-            if node.func.value.id == "zip" and node.func.attr == "writestr" and node.args[0].value == "playwright/driver/README.md":
+            if node.func.value.id == "zip" and node.func.attr == "writestr" and node.args[0].value == "/usr/local/lib/python3.10/site-packages/playwright-python/driver/README.md":
                 node.args[0].value = "patchright/driver/README.md"
 
         # Modify Extractall Call
         if isinstance(node, ast.Call) and isinstance(node.func, ast.Name) and len(node.args) >= 2 and isinstance(node.args[1], ast.Constant):
-            if node.func.id == "extractall" and node.args[1].value == "playwright/driver":
+            if node.func.id == "extractall" and node.args[1].value == "/usr/local/lib/python3.10/site-packages/playwright-python/driver":
                 node.args[1].value = "patchright/driver"
 
         # Modify Setup Call
@@ -98,10 +101,10 @@ with open("playwright/setup.py") as f:
                     value=ast.Constant(value=patchright_version)
                 ))
 
-    patch_file("playwright/setup.py", setup_tree)
+    patch_file("/usr/local/lib/python3.10/site-packages/playwright-python/setup.py", setup_tree)
 
-# Patching playwright/_impl/__pyinstaller/hook-playwright.async_api.py
-with open("playwright/_impl/__pyinstaller/hook-playwright.async_api.py") as f:
+# Patching /usr/local/lib/python3.10/site-packages/playwright-python/_impl/__pyinstaller/hook-playwright.async_api.py
+with open("/usr/local/lib/python3.10/site-packages/playwright-python/playwright/_impl/__pyinstaller/hook-playwright.async_api.py") as f:
     async_api_source = f.read()
     async_api_tree = ast.parse(async_api_source)
 
@@ -110,10 +113,10 @@ with open("playwright/_impl/__pyinstaller/hook-playwright.async_api.py") as f:
             if node.func.id == "collect_data_files" and node.args[0].value == "playwright":
                 node.args[0].value = "patchright"
 
-    patch_file("playwright/_impl/__pyinstaller/hook-playwright.async_api.py", async_api_tree)
+    patch_file("/usr/local/lib/python3.10/site-packages/playwright-python/playwright/_impl/__pyinstaller/hook-playwright.async_api.py", async_api_tree)
 
-# Patching playwright/_impl/__pyinstaller/hook-playwright.sync_api.py
-with open("playwright/_impl/__pyinstaller/hook-playwright.sync_api.py") as f:
+# Patching /usr/local/lib/python3.10/site-packages/playwright-python/_impl/__pyinstaller/hook-playwright.sync_api.py
+with open("/usr/local/lib/python3.10/site-packages/playwright-python/playwright/_impl/__pyinstaller/hook-playwright.sync_api.py") as f:
     async_api_source = f.read()
     async_api_tree = ast.parse(async_api_source)
 
@@ -122,10 +125,10 @@ with open("playwright/_impl/__pyinstaller/hook-playwright.sync_api.py") as f:
             if node.func.id == "collect_data_files" and node.args[0].value == "playwright":
                 node.args[0].value = "patchright"
 
-    patch_file("playwright/_impl/__pyinstaller/hook-playwright.sync_api.py", async_api_tree)
+    patch_file("/usr/local/lib/python3.10/site-packages/playwright-python/playwright/_impl/__pyinstaller/hook-playwright.sync_api.py", async_api_tree)
 
-# Patching playwright/_impl/_driver.py
-with open("playwright/_impl/_driver.py") as f:
+# Patching /usr/local/lib/python3.10/site-packages/playwright-python/_impl/_driver.py
+with open("/usr/local/lib/python3.10/site-packages/playwright-python/playwright/_impl/_driver.py") as f:
     driver_source = f.read()
     driver_tree = ast.parse(driver_source)
 
@@ -134,10 +137,10 @@ with open("playwright/_impl/_driver.py") as f:
             if node.func.value.id == "inspect" and node.func.attr == "getfile" and node.args[0].id == "playwright":
                 node.args[0].id = "patchright"
 
-    patch_file("playwright/_impl/_driver.py", driver_tree)
+    patch_file("/usr/local/lib/python3.10/site-packages/playwright-python/playwright/_impl/_driver.py", driver_tree)
 
-# Patching playwright/_impl/_connection.py
-with open("playwright/_impl/_connection.py") as f:
+# Patching /usr/local/lib/python3.10/site-packages/playwright-python/_impl/_connection.py
+with open("/usr/local/lib/python3.10/site-packages/playwright-python/playwright/_impl/_connection.py") as f:
     connection_source = f.read()
     connection_source_tree = ast.parse(connection_source)
 
@@ -150,10 +153,10 @@ with open("playwright/_impl/_connection.py") as f:
             if node.value.value.value.id == "playwright" and node.value.value.attr == "_impl" and node.value.attr == "_impl_to_api_mapping":
                 node.value.value.value.id = "patchright"
 
-    patch_file("playwright/_impl/_connection.py", connection_source_tree)
+    patch_file("/usr/local/lib/python3.10/site-packages/playwright-python/playwright/_impl/_connection.py", connection_source_tree)
 
-# Patching playwright/_impl/_js_handle.py
-with open("playwright/_impl/_js_handle.py") as f:
+# Patching /usr/local/lib/python3.10/site-packages/playwright-python/_impl/_js_handle.py
+with open("/usr/local/lib/python3.10/site-packages/playwright-python/playwright/_impl/_js_handle.py") as f:
     js_handle_source = f.read()
     js_handle_tree = ast.parse(js_handle_source)
 
@@ -186,10 +189,10 @@ with open("playwright/_impl/_js_handle.py") as f:
                                         value=ast.Name(id="isolatedContext", ctx=ast.Load())
                                     ))
 
-    patch_file("playwright/_impl/_js_handle.py", js_handle_tree)
+    patch_file("/usr/local/lib/python3.10/site-packages/playwright-python/playwright/_impl/_js_handle.py", js_handle_tree)
 
-# Patching playwright/_impl/_frame.py
-with open("playwright/_impl/_frame.py") as f:
+# Patching /usr/local/lib/python3.10/site-packages/playwright-python/_impl/_frame.py
+with open("/usr/local/lib/python3.10/site-packages/playwright-python/playwright/_impl/_frame.py") as f:
     frame_source = f.read()
     frame_tree = ast.parse(frame_source)
 
@@ -217,10 +220,10 @@ with open("playwright/_impl/_frame.py") as f:
                                         value=ast.Name(id="isolatedContext", ctx=ast.Load())
                                     ))
 
-    patch_file("playwright/_impl/_frame.py", frame_tree)
+    patch_file("/usr/local/lib/python3.10/site-packages/playwright-python/playwright/_impl/_frame.py", frame_tree)
 
-# Patching playwright/_impl/_locator.py
-with open("playwright/_impl/_locator.py") as f:
+# Patching /usr/local/lib/python3.10/site-packages/playwright-python/_impl/_locator.py
+with open("/usr/local/lib/python3.10/site-packages/playwright-python/playwright/_impl/_locator.py") as f:
     frame_source = f.read()
     frame_tree = ast.parse(frame_source)
 
@@ -257,10 +260,10 @@ with open("playwright/_impl/_locator.py") as f:
                                 ))
 
 
-    patch_file("playwright/_impl/_locator.py", frame_tree)
+    patch_file("/usr/local/lib/python3.10/site-packages/playwright-python/playwright/_impl/_locator.py", frame_tree)
 
-# Patching playwright/_impl/_browser_context.py
-with open("playwright/_impl/_browser_context.py") as f:
+# Patching /usr/local/lib/python3.10/site-packages/playwright-python/_impl/_browser_context.py
+with open("/usr/local/lib/python3.10/site-packages/playwright-python/playwright/_impl/_browser_context.py") as f:
     browser_context_source = f.read()
     browser_context_tree = ast.parse(browser_context_source)
 
@@ -311,10 +314,10 @@ async def install_inject_route(self) -> None:
             await self.route("**/*", mapping.wrap_handler(route_handler))
         self.route_injecting = True""").body[0])
 
-    patch_file("playwright/_impl/_browser_context.py", browser_context_tree)
+    patch_file("/usr/local/lib/python3.10/site-packages/playwright-python/playwright/_impl/_browser_context.py", browser_context_tree)
 
-# Patching playwright/_impl/_page.py
-with open("playwright/_impl/_page.py") as f:
+# Patching /usr/local/lib/python3.10/site-packages/playwright-python/_impl/_page.py
+with open("/usr/local/lib/python3.10/site-packages/playwright-python/playwright/_impl/_page.py") as f:
     page_source = f.read()
     page_tree = ast.parse(page_source)
 
@@ -397,10 +400,10 @@ async def install_inject_route(self) -> None:
                         ))
 
 
-    patch_file("playwright/_impl/_page.py", page_tree)
+    patch_file("/usr/local/lib/python3.10/site-packages/playwright-python/playwright/_impl/_page.py", page_tree)
 
-# Patching playwright/_impl/_clock.py
-with open("playwright/_impl/_clock.py") as f:
+# Patching /usr/local/lib/python3.10/site-packages/playwright-python/_impl/_clock.py
+with open("/usr/local/lib/python3.10/site-packages/playwright-python/playwright/_impl/_clock.py") as f:
     clock_source = f.read()
     clock_tree = ast.parse(clock_source)
 
@@ -410,10 +413,10 @@ with open("playwright/_impl/_clock.py") as f:
                 if isinstance(class_node, ast.AsyncFunctionDef) and class_node.name == "install":
                     class_node.body.insert(0, ast.parse("await self._browser_context.install_inject_route()"))
 
-    patch_file("playwright/_impl/_clock.py", clock_tree)
+    patch_file("/usr/local/lib/python3.10/site-packages/playwright-python/playwright/_impl/_clock.py", clock_tree)
 
-# Patching playwright/async_api/_generated.py
-with open("playwright/async_api/_generated.py") as f:
+# Patching /usr/local/lib/python3.10/site-packages/playwright-python/async_api/_generated.py
+with open("/usr/local/lib/python3.10/site-packages/playwright-python/playwright/async_api/_generated.py") as f:
     async_generated_source = f.read()
     async_generated_tree = ast.parse(async_generated_source)
 
@@ -440,10 +443,10 @@ with open("playwright/async_api/_generated.py") as f:
                                             )
                             )
 
-    patch_file("playwright/async_api/_generated.py", async_generated_tree)
+    patch_file("/usr/local/lib/python3.10/site-packages/playwright-python/playwright/async_api/_generated.py", async_generated_tree)
 
-# Patching playwright/sync_api/_generated.py
-with open("playwright/sync_api/_generated.py") as f:
+# Patching /usr/local/lib/python3.10/site-packages/playwright-python/sync_api/_generated.py
+with open("/usr/local/lib/python3.10/site-packages/playwright-python/playwright/sync_api/_generated.py") as f:
     async_generated_source = f.read()
     async_generated_tree = ast.parse(async_generated_source)
 
@@ -470,10 +473,10 @@ with open("playwright/sync_api/_generated.py") as f:
                                             )
                             )
 
-    patch_file("playwright/sync_api/_generated.py", async_generated_tree)
+    patch_file("/usr/local/lib/python3.10/site-packages/playwright-python/playwright/sync_api/_generated.py", async_generated_tree)
 
-# Patching Imports of every python file under the playwright/playwright directory
-for python_file in glob.glob("playwright/**.py") + glob.glob("playwright/**/**.py"):
+# Patching Imports of every python file under the /usr/local/lib/python3.10/site-packages/playwright-python/playwright directory
+for python_file in glob.glob("/usr/local/lib/python3.10/site-packages/playwright-python/playwright/**.py") + glob.glob("/usr/local/lib/python3.10/site-packages/playwright-python/**/**.py"):
     with open(python_file) as f:
         file_source = f.read()
         file_tree = ast.parse(file_source)
@@ -496,10 +499,11 @@ for python_file in glob.glob("playwright/**.py") + glob.glob("playwright/**/**.p
         patch_file(python_file, file_tree)
 
 # Rename the Package Folder to Patchright
-os.rename("playwright/playwright", "playwright/patchright")
+os.remove("/usr/local/lib/python3.10/site-packages/patchright")
+os.rename("/usr/local/lib/python3.10/site-packages/playwright-python/playwright", "/usr/local/lib/python3.10/site-packages/patchright")
 
 # Write the Projects README to the README which is used in the release
 with open("README.md", 'r') as src:
-    with open("playwright/README.md", 'w') as dst:
+    with open("/usr/local/lib/python3.10/site-packages/playwright-python/README.md", 'w') as dst:
         # Read from the source readme and write to the destination readme
         dst.write(src.read())
