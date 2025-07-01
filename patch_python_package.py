@@ -499,7 +499,7 @@ for python_file in glob.glob("/usr/local/lib/python3.10/site-packages/playwright
         patch_file(python_file, file_tree)
 
 # Rename the Package Folder to Patchright
-os.remove("/usr/local/lib/python3.10/site-packages/patchright")
+os.system("rm -rf /usr/local/lib/python3.10/site-packages/patchright")
 os.system("mv /usr/local/lib/python3.10/site-packages/playwright-python/playwright /usr/local/lib/python3.10/site-packages/patchright")
 
 # Write the Projects README to the README which is used in the release
